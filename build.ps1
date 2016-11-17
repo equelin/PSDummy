@@ -36,7 +36,7 @@ $Releases = Get-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName
 
 If ($Releases) {
     $ENV:BHGitHubLatestReleaseVersion = [version]($releases.name | Select-Object -First 1).Substring(1)
-} esle {
+} else {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }
 
