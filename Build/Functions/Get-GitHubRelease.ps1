@@ -34,8 +34,12 @@ Function Get-GitHubRelease {
 
         Write-Verbose $URI
 
-        Invoke-RestMethod -Uri $URI -Method 'Get'
-
+        Try {
+            Invoke-RestMethod -Uri $URI -Method 'Get'
+        }
+        Catch {
+            Throw "Error..."
+        }
     }
 }
 

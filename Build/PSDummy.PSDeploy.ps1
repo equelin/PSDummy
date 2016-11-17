@@ -35,6 +35,10 @@ if(
             }
         }
     }
+
+    . .\Functions\New-GitHubRelease.ps1
+
+    New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tagname $env:BHModuleVersion -name $env:BHModuleVersion -draft $True
 }
 else
 {

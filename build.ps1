@@ -33,7 +33,12 @@ $ENV:BHPSGalleryLatestModuleVersion = (Find-Module -Name $ENV:BHProjectName).ver
 
 #Get GitHub latest release
 $Releases = Get-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName
-$ENV:BHGitHubLatestReleaseVersion = [version]($releases.name | Select-Object -First 1).Substring(1)
+
+If ($Releases) {
+    $ENV:BHGitHubLatestReleaseVersion = [version]($releases.name | Select-Object -First 1).Substring(1)
+} esle {
+    $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
+}
 
 #Invoke PSake
 Invoke-psake $PSScriptRoot\Build\psake.ps1
