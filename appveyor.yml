@@ -4,27 +4,31 @@
 version: 1.0.{build}
 os: WMF 5
 install:
-  - ps: Write-Host 'Install'
+  - ps: . .\AppVeyor\install.ps1
 
 environment:
-  MySecureVar:
-    secure: 2miEAGV72ED32TvZbXUbQA== #This is secured
-  MyNonSecureVar: NonSecure
-  ModuleName: appVeyorDemo
+  NuGetApiKey:
+    secure: UIr9SZkDLqMe2EjAP2CBmvomalY6sRAenwlLYR3fRDdyUhB1/RO7nsvYFRGM36RD
+  GHToken:
+    secure: 5jmXah8zuXr+gjrG1WkD1uZ/jk9q7W+foC793X8//rJN5vdye5tice7j83mPuuwU
+  ModuleName: PSDummy
+
 #---------------------------------# 
 #      build configuration        # 
 #---------------------------------# 
 build_script: 
-  - ps: Write-Host 'Build'
+  - ps: . .\AppVeyor\build.ps1
 
 #---------------------------------# 
 #      test configuration         # 
 #---------------------------------# 
 test_script: 
-  - ps: Write-Host 'Test'
+  - ps: . .\AppVeyor\test.ps1
 
 #---------------------------------# 
 #      deployment configuration   # 
 #---------------------------------# 
 deploy_script: 
   - ps: Write-Host 'Deploy'
+
+skip_tags: true
