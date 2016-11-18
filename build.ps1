@@ -35,7 +35,7 @@ $ENV:BHPSGalleryLatestModuleVersion = (Find-Module -Name $ENV:BHProjectName).ver
 $Releases = Get-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName
 
 If ($Releases) {
-    $ENV:BHGitHubLatestReleaseVersion = [version]($releases.name | Select-Object -First 1).Substring(1)
+    $ENV:BHGitHubLatestReleaseVersion = [version]($releases.tag_name | Select-Object -First 1)
 } else {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }

@@ -49,14 +49,18 @@ Task Test -Depends Init  {
     If($ENV:BHBuildSystem -eq 'AppVeyor')
     {
         "`n`tSTATUS: Uploading tests and documentation on Appveyor"
+        <#
         #Upload NUnitXml tests results
         (New-Object 'System.Net.WebClient').UploadFile(
             "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
-            "$ProjectRoot\Build\$TestFile" )
+            "$ProjectRoot\Build\$TestFile")
         #Upload documented tests results in .txt format 
         (New-Object 'System.Net.WebClient').UploadFile(
             "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
-            "$FormatPesterResult" )
+            "$FormatPesterResult")
+        #>
+        Push-AppveyorArtifact $ProjectRoot\Build\$TestFile
+        Push-AppveyorArtifact $FormatPesterResult
     }
 
     "`n`tSTATUS: Delete files"
@@ -102,11 +106,15 @@ Task Deploy -Depends Build {
             Force = $true
             Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
         }
-    
+
+        "`n`tSTATUS: Publish module on PSGallery"    
         Invoke-PSDeploy @Verbose @Params
 
+        "`n`tSTATUS: Create a new GitHub release"
         # Create a new GitHub draft release
-        New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $False
+        $Release = New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $False
+
+        $Release | Format-Table id, tag_name, name, target_commitish
     }
     else
     {
@@ -130,6 +138,7 @@ Task Deploy -Depends Build {
             Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
         }
     
+        "`n`tSTATUS: Publish artifact to AppVeyor"
         Invoke-PSDeploy @Verbose @Params
     }
 }
