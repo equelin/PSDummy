@@ -36,16 +36,19 @@ Task Init {
 Task Test -Depends Init  {
     $lines
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
+    "`n`tSTATUS: Running Pester tests"
 
     # Gather test results. Store them in a variable and file
-    $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\Build\$TestFile" | Format-Pester -Path . -Format
-
+    $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\Build\$TestFile"
+    
+    "`n`tSTATUS: Documenting the Pester results"
     # Document the pester results
-    $FormatPesterResult = $TestResults | Format-Pester -Format 'Text' -BaseFileName $BaseFileName 
+    $FormatPesterResult = $TestResults | Format-Pester -Format 'Text' -BaseFileName $BaseFileName
 
     # In Appveyor?  Upload our tests and documentation! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
     {
+        "`n`tSTATUS: Uploading tests and documentation on Appveyor"
         #Upload NUnitXml tests results
         (New-Object 'System.Net.WebClient').UploadFile(
             "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
@@ -56,9 +59,15 @@ Task Test -Depends Init  {
             "$FormatPesterResult" )
     }
 
-    Remove-Item "$ProjectRoot\Build\$TestFile" -Force -ErrorAction SilentlyContinue
-
-    Remove-Item "$FormatPesterResult" -Force -ErrorAction SilentlyContinue
+    "`n`tSTATUS: Delete files"
+    # Delete files
+    If (Get-Item -Path "$ProjectRoot\Build\$TestFile") {
+        Remove-Item "$ProjectRoot\Build\$TestFile" -Force -ErrorAction SilentlyContinue
+    }
+    
+    If (Get-Item -Path $FormatPesterResult) {
+        Remove-Item "$FormatPesterResult" -Force -ErrorAction SilentlyContinue
+    }
 
     # Failed tests?
     # Need to tell psake or it will proceed to the deployment. Danger!
