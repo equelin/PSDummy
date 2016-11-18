@@ -18,6 +18,8 @@ Properties {
     {
         $Verbose = @{Verbose = $True}
     }
+
+    . $ENV:BHProjectPath\Build\Functions\New-GitHubRelease.ps1
 }
 
 Task Default -Depends Deploy
@@ -66,10 +68,46 @@ Task Build -Depends Test {
 Task Deploy -Depends Build {
     $lines
 
-    $Params = @{
-        Path = "$ProjectRoot\Build"
-        Force = $true
-        Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
+    if(
+    $env:BHPSModulePath -and
+    $env:BHBuildSystem -ne 'Unknown' -and
+    $env:BHBranchName -eq "master" -and
+    $env:BHModuleVersion -gt $env:BHGitHubLatestReleaseVersion -and
+    $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
+    )
+    {
+        $Params = @{
+            Path = "$ProjectRoot\Build\PSGalleryModule.PSDeploy.ps1"
+            Force = $true
+            Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
+        }
+    
+        Invoke-PSDeploy @Verbose @Params
+
+        New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $True
     }
-    Invoke-PSDeploy @Verbose @Params
+    else
+    {
+        "Skipping deployment: To deploy, ensure that...`n" +
+        "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
+        "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
+        "`t* The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion) `n" +
+        "`t* The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion) `n" |
+            Write-Host
+    }
+
+    # Publish to AppVeyor if we're in AppVeyor
+    if(
+        $env:BHPSModulePath -and
+        $env:BHBuildSystem -eq 'AppVeyor'
+    )
+    {
+        $Params = @{
+            Path = "$ProjectRoot\Build\AppVeyorModule.PSDeploy.ps1"
+            Force = $true
+            Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
+        }
+    
+        Invoke-PSDeploy @Verbose @Params
+    }
 }
