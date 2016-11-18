@@ -38,7 +38,7 @@ Function Get-GitHubRelease {
             Invoke-RestMethod -Uri $URI -Method 'Get'
         }
         Catch {
-            Throw "Error..."
+            Throw "Error... $_"
         }
     }
 }
