@@ -12,7 +12,7 @@
 RootModule = 'PSDummy.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.3'
+ModuleVersion = '1.1.4'
 
 # ID used to uniquely identify this module
 GUID = '0e1a8b0d-d0d7-4369-b4e5-435273c6cced'

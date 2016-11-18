@@ -11,6 +11,7 @@ Properties {
     $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
     $PSVersion = $PSVersionTable.PSVersion.Major
     $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
+    $BaseFileName = "TestResults_PS$PSVersion`_$TimeStamp"
     $lines = '----------------------------------------------------------------------'
 
     $Verbose = @{}
@@ -37,17 +38,27 @@ Task Test -Depends Init  {
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
     # Gather test results. Store them in a variable and file
-    $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\Build\$TestFile"
+    $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\Build\$TestFile" | Format-Pester -Path . -Format
 
-    # In Appveyor?  Upload our tests! #Abstract this into a function?
+    # Document the pester results
+    $FormatPesterResult = $TestResults | Format-Pester -Path . -Format Text -BaseFileName $BaseFileName 
+
+    # In Appveyor?  Upload our tests and documentation! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
     {
+        #Upload NUnitXml tests results
         (New-Object 'System.Net.WebClient').UploadFile(
             "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
             "$ProjectRoot\Build\$TestFile" )
+        #Upload documented tests results in .txt format 
+        (New-Object 'System.Net.WebClient').UploadFile(
+            "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
+            "$FormatPesterResult" )
     }
 
     Remove-Item "$ProjectRoot\Build\$TestFile" -Force -ErrorAction SilentlyContinue
+
+    Remove-Item "$FormatPesterResult" -Force -ErrorAction SilentlyContinue
 
     # Failed tests?
     # Need to tell psake or it will proceed to the deployment. Danger!
@@ -68,6 +79,7 @@ Task Build -Depends Test {
 Task Deploy -Depends Build {
     $lines
 
+    # Publish to PSGallery and create a GitHub release if all conditions are met
     if(
     $env:BHPSModulePath -and
     $env:BHBuildSystem -ne 'Unknown' -and
@@ -84,6 +96,7 @@ Task Deploy -Depends Build {
     
         Invoke-PSDeploy @Verbose @Params
 
+        # Create a new GitHub draft release
         New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $True
     }
     else
