@@ -41,7 +41,7 @@ Task Test -Depends Init  {
     $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\Build\$TestFile" | Format-Pester -Path . -Format
 
     # Document the pester results
-    $FormatPesterResult = $TestResults | Format-Pester -Path . -Format Text -BaseFileName $BaseFileName 
+    $FormatPesterResult = $TestResults | Format-Pester -Path . -Format 'Text' -BaseFileName $BaseFileName 
 
     # In Appveyor?  Upload our tests and documentation! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
@@ -97,7 +97,7 @@ Task Deploy -Depends Build {
         Invoke-PSDeploy @Verbose @Params
 
         # Create a new GitHub draft release
-        New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $True
+        New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $False
     }
     else
     {
