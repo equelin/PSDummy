@@ -97,6 +97,7 @@ Task Deploy -Depends Build {
     $env:BHPSModulePath -and
     $env:BHBuildSystem -ne 'Unknown' -and
     $env:BHBranchName -eq "master" -and
+    (-not $APPVEYOR_PULL_REQUEST_NUMBER) -and
     $env:BHModuleVersion -gt $env:BHGitHubLatestReleaseVersion -and
     $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
     )
@@ -121,6 +122,7 @@ Task Deploy -Depends Build {
         "Skipping deployment: To deploy, ensure that...`n" +
         "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
         "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
+        "`t* The is not a GitHub pull request check (PR: $APPVEYOR_PULL_REQUEST_NUMBER) `n" +
         "`t* The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion) `n" +
         "`t* The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion) `n" |
             Write-Host

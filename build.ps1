@@ -40,6 +40,11 @@ If ($Releases) {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }
 
+#Get GitHub pull request number, if applicable
+If ($APPVEYOR_PULL_REQUEST_NUMBER) {
+    $ENV:BHGitHubPRNumber = $APPVEYOR_PULL_REQUEST_NUMBER
+}
+
 #Invoke PSake
 Invoke-psake $PSScriptRoot\Build\psake.ps1
 exit ( [int]( -not $psake.build_success ) )
