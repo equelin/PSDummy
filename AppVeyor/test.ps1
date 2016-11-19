@@ -24,7 +24,12 @@ $FormatPesterResult = $TestResults | Format-Pester -Format 'Text' -BaseFileName 
 If($ENV:BHBuildSystem -eq 'AppVeyor')
 {
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Uploading tests and documentation on Appveyor" -ForegroundColor Blue
-    Push-AppveyorArtifact $ProjectRoot\Appveyor\$TestFile
+    #Upload NUnitXml tests results
+    (New-Object 'System.Net.WebClient').UploadFile(
+        "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
+        "$ProjectRoot\AppVeyor\$TestFile")
+
+    #Upload Format-Pester tests results   
     Push-AppveyorArtifact $FormatPesterResult
 }
 
