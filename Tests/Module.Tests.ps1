@@ -1,7 +1,7 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 #Get information from the module manifest
-$manifestPath = "$here\..\..\PSDummy\PSDummy.psd1"
+$manifestPath = "$here\..\PSDummy\PSDummy.psd1"
 $manifest = Test-ModuleManifest -Path $manifestPath
 
 #Test if a PSDummy module is already loaded
