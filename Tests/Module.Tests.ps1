@@ -11,10 +11,10 @@ $Module = Get-Module -Name 'PSDummy' -ErrorAction SilentlyContinue
 If ($module) {
     If ($Module.Version -ne $manifest.version) {
         Remove-Module $Module
-        Import-Module "$here\..\..\PSDummy" -Version $manifest.version -force
+        Import-Module "$here\..\PSDummy" -Version $manifest.version -force
     }
 } else {
-    Import-Module "$here\..\..\PSDummy" -Version $manifest.version -force
+    Import-Module "$here\..\PSDummy" -Version $manifest.version -force
 }
 
 Describe -Tags 'VersionChecks' "PSDummy manifest" {
