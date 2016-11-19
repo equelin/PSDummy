@@ -29,6 +29,6 @@ test_script:
 #      deployment configuration   # 
 #---------------------------------# 
 deploy_script: 
-  - ps: Write-Host 'Deploy'
+  - ps: . .\AppVeyor\deploy.ps1
 
 skip_tags: true

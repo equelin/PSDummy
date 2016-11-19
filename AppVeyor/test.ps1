@@ -1,4 +1,4 @@
-Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - TEST" -ForegroundColor Yellow
+Write-Host "***** TEST *****" -ForegroundColor Yellow
 
 # Find the build folder based on build system
 $ProjectRoot = $ENV:BHProjectPath
@@ -42,3 +42,5 @@ If (Get-Item -Path $FormatPesterResult) {
 If ($TestResults.FailedCount -gt 0) {
     Throw "[$env:BHBuildSystem]-[$env:BHProjectName]-Failed '$($TestResults.FailedCount)' tests, build failed"
 }
+
+Write-Host "***** END TEST *****" -ForegroundColor Yellow

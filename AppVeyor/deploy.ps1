@@ -1,4 +1,4 @@
-Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - DEPLOY" -ForegroundColor Yellow
+Write-Host "***** DEPLOY *****" -ForegroundColor Yellow
 
 # Publish to PSGallery and create a GitHub release if all conditions are met
 If (
@@ -27,12 +27,11 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
 }
 Else
 {
-    "Skipping deployment: To deploy, ensure that...`n" +
-    "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
-    "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
-    "`t* The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion) `n" +
-    "`t* The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion) `n" |
-        Write-Host
+    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Skipping deployment: To deploy, ensure that..." -ForegroundColor Magenta
+    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are in a known build system (Current: $ENV:BHBuildSystem)" -ForegroundColor Magenta
+    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are committing to the master branch (Current: $ENV:BHBranchName)" -ForegroundColor Magenta
+    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion)" -ForegroundColor Magenta
+    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion)" -ForegroundColor Magenta
 }
 
 # Publish to AppVeyor if we're in AppVeyor
@@ -50,3 +49,5 @@ If (
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module as an AppVeyor artifact" -ForegroundColor Blue
     Invoke-PSDeploy @Verbose @Params
 }
+
+Write-Host "***** END DEPLOY *****" -ForegroundColor Yellow
