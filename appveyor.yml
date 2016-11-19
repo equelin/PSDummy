@@ -31,4 +31,14 @@ test_script:
 deploy_script: 
   - ps: . .\AppVeyor\deploy.ps1
 
+#Skip build when pushing a new tags
 skip_tags: true
+
+#GitHub Pull Request notifications
+notifications:
+  - provider: GitHubPullRequest
+    auth_token:
+      secure: 5jmXah8zuXr+gjrG1WkD1uZ/jk9q7W+foC793X8//rJN5vdye5tice7j83mPuuwU
+    template: "{{#passed}}:white_check_mark:{{/passed}}{{#failed}}:x:{{/failed}} [Build {{&projectName}} {{buildVersion}} {{status}}]({{buildUrl}}) (commit {{commitUrl}} by @{{&commitAuthorUsername}})"
+
+
