@@ -13,9 +13,7 @@ $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
 $BaseFileName = "TestResults_PS$PSVersion`_$TimeStamp"
 
 # Gather test results. Store them in a variable and file
-Add-AppveyorTest -Name "Pester" -Outcome Running
-
-Add-AppveyorMessage -Message "Run pester tests" -Category Information
+Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Run pester tests" -ForegroundColor Blue
 $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\AppVeyor\$TestFile"
 
 Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Documenting the pester's results with Format-Pester" -ForegroundColor Blue
@@ -47,11 +45,7 @@ If (Get-Item -Path $FormatPesterResult) {
 
 # Stop the build if a pester test fails 
 If ($TestResults.FailedCount -gt 0) {
-    Add-AppveyorMessage -Message "Pester: $($TestResults.FailedCount) tests failed." -Category Error
-    Update-AppveyorTest -Name 'Pester' -Outcome Failed -ErrorMessage "$($TestResults.FailedCount) tests failed."
-    Throw "Pester: $($TestResults.FailedCount) tests failed."
-} else {
-    Update-AppveyorTest -Name 'Pester' -Outcome Passed
+    Throw "[$env:BHBuildSystem]-[$env:BHProjectName]-Failed '$($TestResults.FailedCount)' tests, build failed"
 }
 
 Write-Host "***** END TEST *****" -ForegroundColor Yellow

@@ -10,7 +10,7 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
 )
 {
     $Params = @{
-        Path = "$ProjectRoot\Build\PSGalleryModule.PSDeploy.ps1"
+        Path = "$ProjectRoot\AppVeyor\PSDeploy\PSGalleryModule.PSDeploy.ps1"
         Force = $true
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
@@ -41,7 +41,7 @@ If (
 )
 {
     $Params = @{
-        Path = "$ProjectRoot\Build\AppVeyorModule.PSDeploy.ps1"
+        Path = "$ProjectRoot\AppVeyor\PSDeploy\AppVeyorModule.PSDeploy.ps1"
         Force = $true
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
