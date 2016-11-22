@@ -4,9 +4,6 @@ Add-AppVeyorLog -Message 'START INSTALL / INIT' -Category 'Information'
 Add-AppVeyorLog -Message 'Get NuGEt package provider' -Category 'Information'
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Add-AppVeyorLog -Message 'Import local module AppVeyor-Util' -Category 'Information' -Details "Source: $PSScriptRoot\Functions\AppVeyor-Util.psm1"
-Import-Module -Name $PSScriptRoot\Functions\AppVeyor-Util.psm1 -ErrorAction Stop | Out-Null
-
 Add-AppVeyorLog -Message 'Import modules from PSGallery' -Category 'Information' -Details 'Module list: PSDeploy, Pester, BuildHelpers, Format-Pester'
 Resolve-Module PSDeploy, Pester, BuildHelpers, Format-Pester
 
