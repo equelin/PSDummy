@@ -4,7 +4,7 @@
 version: 1.0.{build}
 os: WMF 5
 install:
-  - ps: Import-Module .\AppVeyor\Functions\AppVeyor-Util.ps1 | Out-Null
+  - ps: Import-Module .\AppVeyor\Functions\AppVeyor-Util.psm1 | Out-Null
   - ps: . .\AppVeyor\install.ps1
 
 environment:
