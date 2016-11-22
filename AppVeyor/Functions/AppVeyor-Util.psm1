@@ -262,3 +262,39 @@ function Resolve-Module
     }
 }
 
+Function Add-AppVeyorLog {
+    [cmdletbinding()]
+    param(
+        # Message
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        #Category
+        [Parameter(Mandatory=$false)]
+        [string]$Category = 'Information',
+
+        #Category
+        [Parameter(Mandatory=$false)]
+        [string]$Details
+    )
+
+    Process {
+
+        $Timestamp = Get-date -uformat "%Y/%m/%d-%Hh%Mm%Ss"
+
+        Switch ($Category) {
+            'Information' {$CategoryColor = 'Green'}
+            'Warning' {$CategoryColor = 'Yellow'}
+            'Error' {$CategoryColor = 'Red'}
+        }
+
+        If ($Details) {
+            Add-AppveyorMessage -Message $Message -Category $Category -Details $Details
+            Write-Host "[$Timestamp] - [$Category] - $Message" -Foreground $CategoryColor
+            Write-Host "$Details" -ForegroundColor $CategoryColor     
+        } else {
+            Add-AppveyorMessage -Message $Message -Category $Category
+            Write-Host "[$Timestamp] - [$Category] - $Message" -Foreground $CategoryColor    
+        }
+    }
+}

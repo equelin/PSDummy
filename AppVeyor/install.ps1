@@ -1,28 +1,28 @@
-Write-Host "***** INSTALL / INIT *****" -ForegroundColor Yellow
+Add-AppVeyorLog -Message 'START INSTALL / INIT' -Category 'Information'
 
 # Grab nuget bits, install modules, set build variables, start build.
-Write-Host "Get NuGEt package provider" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Get NuGEt package provider' -Category 'Information'
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Write-Host "Import local module AppVeyor-Util" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Import local module AppVeyor-Util' -Category 'Information' -Details "Source: $PSScriptRoot\Functions\AppVeyor-Util.psm1"
 Import-Module -Name $PSScriptRoot\Functions\AppVeyor-Util.psm1 -ErrorAction Stop | Out-Null
 
-Write-Host "Import modules from PSGallery" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Import modules from PSGallery' -Category 'Information' -Details 'Module list: PSDeploy, Pester, BuildHelpers, Format-Pester'
 Resolve-Module PSDeploy, Pester, BuildHelpers, Format-Pester
 
-Write-Host "Set build environment variables" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Set build environment variables' -Category 'Information'
 Set-BuildEnvironment
 
 #Get module version
-Write-Host "Get module version" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Get module version' -Category 'Information'
 $ENV:BHModuleVersion = (Test-ModuleManifest -Path $ENV:BHPSModuleManifest).version
 
 #Get PSGallery latest module version
-Write-Host "Get PSGallery latest module version" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Get PSGallery latest module version' -Category 'Information'
 $ENV:BHPSGalleryLatestModuleVersion = (Find-Module -Name $ENV:BHProjectName).version
 
 #Get GitHub latest release
-Write-Host "Get GitHub latest release" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Get GitHub latest release' -Category 'Information'
 $Releases = Get-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName 
 
 If ($Releases) {
@@ -31,4 +31,4 @@ If ($Releases) {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }
 
-Write-Host "***** END INSTALL / INIT *****" -ForegroundColor Yellow
+Add-AppVeyorLog -Message 'END INSTALL / INIT' -Category 'Information'
