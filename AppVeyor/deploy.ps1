@@ -18,6 +18,22 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module on PSGallery" -ForegroundColor Blue
     Invoke-PSDeploy @Verbose @Params
 
+    # Publish to AppVeyor if we're in AppVeyor
+    If (
+        $env:BHPSModulePath -and
+        $env:BHBuildSystem -eq 'AppVeyor'
+    )
+    {
+        $Params = @{
+            Path = "$ProjectRoot\AppVeyor\PSDeploy\AppVeyorModule.PSDeploy.ps1"
+            Force = $true
+            Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
+        }
+
+        Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module as an AppVeyor artifact" -ForegroundColor Blue
+        Invoke-PSDeploy @Verbose @Params
+    }      
+
     # Create a new GitHub release
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Create a new GitHub release" -ForegroundColor Blue
     $Release = New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $False
@@ -32,22 +48,6 @@ Else
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are committing to the master branch (Current: $ENV:BHBranchName)" -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion)" -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion)" -ForegroundColor Magenta
-}
-
-# Publish to AppVeyor if we're in AppVeyor
-If (
-    $env:BHPSModulePath -and
-    $env:BHBuildSystem -eq 'AppVeyor'
-)
-{
-    $Params = @{
-        Path = "$ProjectRoot\AppVeyor\PSDeploy\AppVeyorModule.PSDeploy.ps1"
-        Force = $true
-        Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
-    }
-
-    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module as an AppVeyor artifact" -ForegroundColor Blue
-    Invoke-PSDeploy @Verbose @Params
 }
 
 Write-Host "***** END DEPLOY *****" -ForegroundColor Yellow
