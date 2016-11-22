@@ -5,7 +5,7 @@ Write-Host "Get NuGEt package provider" -ForegroundColor Blue
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
 Write-Host "Import local module AppVeyor-Util" -ForegroundColor Blue
-Import-Module -Name $PSScriptRoot\AppVeyor\Functions\AppVeyor-Util.psm1 -ErrorAction Stop | Out-Null
+Import-Module -Name $PSScriptRoot\Functions\AppVeyor-Util.psm1 -ErrorAction Stop | Out-Null
 
 Write-Host "Import modules from PSGallery" -ForegroundColor Blue
 Resolve-Module PSDeploy, Pester, BuildHelpers, Format-Pester
