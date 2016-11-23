@@ -28,4 +28,4 @@ If ($Releases) {
 
 $Items = Get-Item ENV:BH*
 
-Add-AppVeyorLog -Message 'Build environnement varialbes' -Category 'Information' -Details $Item
+Add-AppVeyorLog -Message 'Build environnement variables' -Category 'Information' -Details $Items

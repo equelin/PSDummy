@@ -50,7 +50,7 @@ Else
     The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion)
 "@
 
-    Add-AppVeyorLog -Message 'Skipping deployment' -Category 'Information' -Details $Details
+    Add-AppVeyorLog -Message 'Skipping deployment' -Category 'Warning' -Details $Details
     <#
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Skipping deployment: To deploy, ensure that..." -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are in a known build system (Current: $ENV:BHBuildSystem)" -ForegroundColor Magenta
