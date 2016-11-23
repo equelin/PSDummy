@@ -1,5 +1,3 @@
-Add-AppVeyorLog -Message 'START INSTALL / INIT' -Category 'Information'
-
 # Grab nuget bits, install modules, set build variables, start build.
 Add-AppVeyorLog -Message 'Get NuGEt package provider' -Category 'Information'
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
@@ -28,4 +26,6 @@ If ($Releases) {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }
 
-Add-AppVeyorLog -Message 'END INSTALL / INIT' -Category 'Information'
+$Items = Get-Item ENV:BH*
+
+Add-AppVeyorLog -Message 'Build environnement varialbes' -Category 'Information' -Details $Item

@@ -1,4 +1,3 @@
-Write-Host "***** DEPLOY *****" -ForegroundColor Yellow
 
 # Publish to PSGallery and create a GitHub release if all conditions are met
 If (
@@ -15,7 +14,7 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
 
-    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module on PSGallery" -ForegroundColor Blue
+    Add-AppVeyorLog -Message 'Publish module on PSGallery' -Category 'Information'
     Invoke-PSDeploy @Verbose @Params
 
     # Publish to AppVeyor if we're in AppVeyor
@@ -30,12 +29,12 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
             Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
         }
 
-        Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Publish module as an AppVeyor artifact" -ForegroundColor Blue
+        Add-AppVeyorLog -Message 'Publish module as an AppVeyor artifact' -Category 'Information'
         Invoke-PSDeploy @Verbose @Params
     }      
 
     # Create a new GitHub release
-    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Create a new GitHub release" -ForegroundColor Blue
+    Add-AppVeyorLog -Message 'Create a new GitHub release' -Category 'Information'
     $Release = New-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName -token $ENV:GHToken -tag_name $env:BHModuleVersion -name $env:BHModuleVersion -draft $False
 
     # Show informations about the created release
@@ -43,11 +42,20 @@ $env:BHModuleVersion -gt $env:BHPSGalleryLatestModuleVersion
 }
 Else
 {
+    $Details = @"
+    Skipping deployment: To deploy, ensure that...
+    You are in a known build system (Current: $ENV:BHBuildSystem)
+    You are committing to the master branch (Current: $ENV:BHBranchName)
+    The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion)
+    The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion)
+"@
+
+    Add-AppVeyorLog -Message 'Skipping deployment' -Category 'Information' -Details $Details
+    <#
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Skipping deployment: To deploy, ensure that..." -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are in a known build system (Current: $ENV:BHBuildSystem)" -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - You are committing to the master branch (Current: $ENV:BHBranchName)" -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest GitHub release (Current: $ENV:BHModuleVersion GitHub:$env:BHGitHubLatestReleaseVersion)" -ForegroundColor Magenta
     Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - The module version is greater than the latest PSGallery version (Current: $ENV:BHModuleVersion GitHub:$env:BHPSGalleryLatestModuleVersion)" -ForegroundColor Magenta
+    #>
 }
-
-Write-Host "***** END DEPLOY *****" -ForegroundColor Yellow

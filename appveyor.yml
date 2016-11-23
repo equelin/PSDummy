@@ -17,8 +17,7 @@ environment:
 #---------------------------------# 
 #      build configuration        # 
 #---------------------------------# 
-build_script: 
-  - ps: . .\AppVeyor\build.ps1
+build: off
 
 #---------------------------------# 
 #      test configuration         # 
