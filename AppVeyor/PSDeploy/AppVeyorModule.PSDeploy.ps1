@@ -3,7 +3,7 @@
         FromSource $ENV:BHPSModulePath
         To AppVeyor
         WithOptions @{
-            Version = $env:APPVEYOR_BUILD_VERSION
+            Version = $env:BHModuleVersion
         }
     }
 }

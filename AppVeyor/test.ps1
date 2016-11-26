@@ -1,5 +1,3 @@
-Write-Host "***** TEST *****" -ForegroundColor Yellow
-
 # Find the build folder based on build system
 $ProjectRoot = $ENV:BHProjectPath
 
@@ -7,45 +5,33 @@ if(-not $ProjectRoot) {
     $ProjectRoot = $PSScriptRoot
 }
 
+# Set some usefull varialbes
 $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
 $PSVersion = $PSVersionTable.PSVersion.Major
 $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
 $BaseFileName = "TestResults_PS$PSVersion`_$TimeStamp"
 
-# Gather test results. Store them in a variable and file
-Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Run pester tests" -ForegroundColor Blue
+# Gather test results. Store them in a variable and a NUnitXml file
+Add-AppVeyorLog -Message 'Run pester tests' -Category 'Information'
 $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\AppVeyor\$TestFile"
 
-Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Documenting the pester's results with Format-Pester" -ForegroundColor Blue
-# Document the pester results
-$FormatPesterResult = $TestResults | Format-Pester -Format 'Text' -BaseFileName $BaseFileName
+# Document the pester results using module Format-Pester
+Add-AppVeyorLog -Message "Documenting the pester's results with Format-Pester" -Category 'Information'
+$FormatPesterResultFile = $TestResults | Format-Pester -Format 'Text' -BaseFileName $BaseFileName
 
 # In Appveyor?  Upload our tests and documentation! 
-If($ENV:BHBuildSystem -eq 'AppVeyor')
-{
-    Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Uploading tests and documentation on Appveyor" -ForegroundColor Blue
-    #Upload NUnitXml tests results
-    (New-Object 'System.Net.WebClient').UploadFile(
-        "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
-        "$ProjectRoot\AppVeyor\$TestFile")
+Add-AppVeyorLog -Message 'Uploading tests and documentation on Appveyor' -Category 'Information'
 
-    #Upload Format-Pester tests results   
-    Push-AppveyorArtifact $FormatPesterResult
-}
+#Upload NUnitXml tests results
+(New-Object 'System.Net.WebClient').UploadFile(
+    "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
+    "$ProjectRoot\AppVeyor\$TestFile")
 
-# Delete files
-Write-Host "[$env:BHBuildSystem]-[$env:BHProjectName] - Delete tests files" -ForegroundColor Blue
-If (Get-Item -Path "$ProjectRoot\AppVeyor\$TestFile") {
-    Remove-Item "$ProjectRoot\AppVeyor\$TestFile" -Force -ErrorAction SilentlyContinue
-}
-
-If (Get-Item -Path $FormatPesterResult) {
-    Remove-Item "$FormatPesterResult" -Force -ErrorAction SilentlyContinue
-}
+#Upload Format-Pester tests results   
+Push-AppveyorArtifact $FormatPesterResultFile
 
 # Stop the build if a pester test fails 
 If ($TestResults.FailedCount -gt 0) {
-    Throw "[$env:BHBuildSystem]-[$env:BHProjectName]-Failed '$($TestResults.FailedCount)' tests, build failed"
+    Add-AppVeyorLog -Message "Tests failed, stop the build" -Category 'Error' -Details "Number of tests failed: $($TestResults.FailedCount)"
+    Throw
 }
-
-Write-Host "***** END TEST *****" -ForegroundColor Yellow

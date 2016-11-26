@@ -1,34 +1,34 @@
-Write-Host "***** INSTALL / INIT *****" -ForegroundColor Yellow
-
 # Grab nuget bits, install modules, set build variables, start build.
-Write-Host "Get NuGEt package provider" -ForegroundColor Blue
+Add-AppVeyorLog -Message 'Get NuGEt package provider' -Category 'Information'
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Write-Host "Import local module AppVeyor-Util" -ForegroundColor Blue
-Import-Module -Name $PSScriptRoot\Functions\AppVeyor-Util.psm1 -ErrorAction Stop | Out-Null
-
-Write-Host "Import modules from PSGallery" -ForegroundColor Blue
+# Import module from PSGallery
+Add-AppVeyorLog -Message 'Import modules from PSGallery' -Category 'Information' -Details 'Module list: PSDeploy, Pester, BuildHelpers, Format-Pester'
 Resolve-Module PSDeploy, Pester, BuildHelpers, Format-Pester
 
-Write-Host "Set build environment variables" -ForegroundColor Blue
+# Set Build environment variables, get them from BuildHelpers module
+Add-AppVeyorLog -Message 'Set build environment variables' -Category 'Information'
 Set-BuildEnvironment
 
-#Get module version
-Write-Host "Get module version" -ForegroundColor Blue
+# Get module version
+Add-AppVeyorLog -Message 'Get module version' -Category 'Information'
 $ENV:BHModuleVersion = (Test-ModuleManifest -Path $ENV:BHPSModuleManifest).version
 
-#Get PSGallery latest module version
-Write-Host "Get PSGallery latest module version" -ForegroundColor Blue
+# Get PSGallery latest published module version
+Add-AppVeyorLog -Message 'Get PSGallery latest module version' -Category 'Information'
 $ENV:BHPSGalleryLatestModuleVersion = (Find-Module -Name $ENV:BHProjectName).version
 
-#Get GitHub latest release
-Write-Host "Get GitHub latest release" -ForegroundColor Blue
+# Get GitHub latest published release
+Add-AppVeyorLog -Message 'Get GitHub latest release' -Category 'Information'
 $Releases = Get-GitHubRelease -username 'equelin' -repository $ENV:BHProjectName 
 
+# Tests if there is an existing release on GitHub, if not set the latest release version to 0.0.0
 If ($Releases) {
     $ENV:BHGitHubLatestReleaseVersion = [version]($releases.tag_name | Select-Object -First 1)
 } else {
     $ENV:BHGitHubLatestReleaseVersion = '0.0.0'
 }
 
-Write-Host "***** END INSTALL / INIT *****" -ForegroundColor Yellow
+# Show environment variables on the AppVeyor console - TODO: Show these informations on the AppVeyor's messages page
+Get-Item ENV:BH*
+
